@@ -1,5 +1,6 @@
 {-
 Nova backup utility.
+
 Copyright (C) 2013  Carlo Hamalainen, University of Queensland.
 
 This program is free software; you can redistribute it and/or modify
@@ -21,13 +22,11 @@ Enquires: Carlo.Hamalainen@gmail.com or help@massive.org.au
 
 import Control.Applicative hiding ((<|>),many)
 import Control.Monad
-import Control.Monad.State
 import Text.Parsec
 import Text.Parsec.String
 import Data.Functor.Identity
 import Data.Maybe
 import Data.List ( isInfixOf )
-import Safe (headMay)
 import System.Environment ( getArgs )
 import System.Cmd
 import System.IO

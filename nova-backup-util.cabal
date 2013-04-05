@@ -15,4 +15,4 @@ cabal-version:       >=1.8
 executable nova-backup-util
   main-is:             NovaBackup.hs
   -- other-modules:       
-  build-depends:       base, process, parsec
+  build-depends:       base, mtl, process, parsec, transformers
