@@ -27,6 +27,7 @@ import Text.Parsec.String
 import Data.Functor.Identity
 import Data.Maybe
 import Data.List ( isInfixOf )
+import Data.Time (UTCTime, getCurrentTime)
 import System.Environment ( getArgs )
 import System.Cmd
 import System.IO
@@ -150,8 +151,11 @@ runBackups dryRun  = do
 
     case x of (Right result) -> do let activeVMs = filter (\v -> (vmStatus v == Active) && (isJust $ vmNet v)) result
                                    if dryRun
-                                    then forM_ activeVMs (putStrLn . backupCmd)
-                                    else forM_ (map backupCmd activeVMs) system
+                                    then forM_ activeVMs                 (\a -> do getCurrentTime >>= (putStrLn . show)
+                                                                                   putStrLn $ backupCmd a)
+                                    else forM_ (map backupCmd activeVMs) (\c -> do getCurrentTime >>= (putStrLn . show)
+                                                                                   putStrLn c
+                                                                                   system c)
               (Left  err)    -> print err
 
 showBackups = do
