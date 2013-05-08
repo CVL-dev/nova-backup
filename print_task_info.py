@@ -17,3 +17,4 @@ if __name__ == '__main__':
     print 'result:',    res.result
     print 'status:',    res.status
     print 'traceback:', res.traceback
+    print
