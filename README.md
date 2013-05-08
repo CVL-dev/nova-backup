@@ -60,4 +60,13 @@ Inspect a backup job using its ID:
 
 If a job fails, the `traceback` will have useful debug info.
 
+# In Use
 
+## Start backups and save job IDs:
+
+    now=`date +%Y-%m-%d-%H%M`
+    python run_backups.py > run_backups_${now}.log
+
+## Show status of each job:
+
+    cat run_backups_${now}.log | cut -f 1 -d ' ' | xargs -n 1 ./print_task_info.py

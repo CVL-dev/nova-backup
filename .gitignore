@@ -1,2 +1,4 @@
 credentials.py
 dist*
+*.pyc
+run_backups*.log
