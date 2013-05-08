@@ -1,23 +1,41 @@
-nova-backup
-===========
+# nova-backup
 
 Utility for running backups of Nectar VMs using the nova command line client.
 
 # Installation
 
-    cabal install
+Install extra packages from epel:
 
-    export PATH=$PATH:$HOME/.cabal/bin
+    sudo yum -y install http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+    sudo yum -y install python-novaclient python-iso8601
 
-# Usage
+Install redis:
 
-Run with no arguments for usage instructions:
+    wget http://redis.googlecode.com/files/redis-2.6.12.tar.gz
+    sudo tar xzf redis-2.6.12.tar.gz -C /opt/
+    cd /opt/redis-2.6.12
+    sudo make
 
-    nova-backup-util
+Install fabric:
 
-# Python stuff:
+    sudo yum -y install gcc python-devel
+    sudo easy_install pip
+    sudo pip install fabric
+
+Install celery:
+
+    sudo pip install -U Celery
+    sudo pip install -U celery-with-redis
+
+# Configuration
 
 Create the file `credentials.py` and define Nova credentials (see the variables `NOVA_*` in `novabackup.py`).
+
+# Running
+
+Start redis:
+
+    /opt/redis-2.6.12/src/redis-server
 
 Start the celery worker:
 
@@ -60,13 +78,13 @@ Inspect a backup job using its ID:
 
 If a job fails, the `traceback` will have useful debug info.
 
-# In Use
+# Notes for actual use
 
-## Start backups and save job IDs:
+Start backups and save job IDs:
 
     now=`date +%Y-%m-%d-%H%M`
     python run_backups.py > run_backups_${now}.log
 
-## Show status of each job:
+Show status of each job:
 
     cat run_backups_${now}.log | cut -f 1 -d ' ' | xargs -n 1 ./print_task_info.py
