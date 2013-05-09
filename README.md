@@ -39,7 +39,7 @@ Start redis:
 
 Start the celery worker:
 
-    celery -A novabackup worker --loglevel=debug --no-color -n novabackup
+    celery -A novabackup worker --loglevel=debug --no-color -n novabackup --concurrency 100
 
 Run the main backup script:
 
@@ -83,7 +83,7 @@ If a job fails, the `traceback` will have useful debug info.
 Start backups and save job IDs:
 
     now=`date +%Y-%m-%d-%H%M`
-    python run_backups.py > run_backups_${now}.log
+    python run_backups.py &> run_backups_${now}.log
 
 Show status of each job:
 

@@ -63,6 +63,10 @@ class BackupVM(Task):
 
         # Run the backup.
         self.update_state(state="PROGRESS", meta={'params': params, 'info': 'running nova backup',})
+        logging.debug('running nova backup for ' + vm_name)
+
+        # import time; time.sleep(10); return True # FIXME debugging
+
         backup_name = 'CVL_BACKUP_' + vm_name
         vm = nc.servers.find(name=vm_name)
         vm.backup(backup_name, 'weekly', 4)
