@@ -67,7 +67,7 @@ class BackupVM(Task):
                 state = getattr(vm, 'OS-EXT-STS:task_state')
                 if state is None: break
 
-                logging.debug('VM %s "%s" is busy: %s' % (vm.id, vm.name, state,)
+                logging.debug('VM %s "%s" is busy: %s' % (vm.id, vm.name, state,))
                 time.sleep(5)
             except:
                 logging.error("exception (will now sleep for 5 seconds): " + traceback.format_exc())
