@@ -9,6 +9,9 @@ from celery import Celery
 from celery.task import Task
 
 import logging
+import traceback
+import time
+import random
 
 celery = Celery('novabackup', backend='redis://localhost', broker='redis://localhost')
 
@@ -48,50 +51,77 @@ def most_recent_backups(nc):
 
 class BackupVM(Task):
     def run(self, vm_name):
-        nc = nova_client()
         params = (vm_name,)
         self.params = params
 
+        nc = nova_client()
         logging.debug('backing up VM "%s"' % (vm_name,))
 
+        time.sleep(random.randrange(10, 100))
+
         # Make sure that the VM isn't busy doing another backup.
-        self.update_state(state="PROGRESS", meta={'params': params, 'info': 'waiting for VM',})
-        vm = nc.servers.find(name=vm_name)
-        state = getattr(vm, 'OS-EXT-STS:task_state')
-        if state is not None:
-            raise ValueError, 'VM %s "%s" is busy: %s' % (vm.id, vm.name, state,)
+        while True:
+            try:
+                self.update_state(state="PROGRESS", meta={'params': params, 'info': 'waiting for VM',})
+                vm = nc.servers.find(name=vm_name)
+                state = getattr(vm, 'OS-EXT-STS:task_state')
+                if state is None: break
+
+                logging.debug('VM %s "%s" is busy: %s' % (vm.id, vm.name, state,)
+                time.sleep(5)
+            except:
+                logging.error("exception (will now sleep for 5 seconds): " + traceback.format_exc())
+                time.sleep(5)
+                continue
 
         # Run the backup.
         self.update_state(state="PROGRESS", meta={'params': params, 'info': 'running nova backup',})
         logging.debug('running nova backup for ' + vm_name)
 
-        # import time; time.sleep(10); return True # FIXME debugging
-
         backup_name = 'CVL_BACKUP_' + vm_name
-        vm = nc.servers.find(name=vm_name)
-        vm.backup(backup_name, 'weekly', 4)
+        while True:
+            try:
+                vm = nc.servers.find(name=vm_name)
+                vm.backup(backup_name, 'weekly', 4)
+                break
+            except:
+                logging.error("exception (will now sleep for 5 seconds): " + traceback.format_exc())
+                time.sleep(5)
+                continue
 
         # Wait for the backup job to start.
         self.update_state(state="PROGRESS", meta={'params': params, 'info': 'waiting for nova backup to start',})
-        while getattr(nc.servers.find(name=vm_name), 'OS-EXT-STS:task_state') != 'image_backup':
-            logging.debug('Waiting for backup job to start on VM %s' % (vm.id,))
-            sleep(3)
+        while True:
+            try:
+                while getattr(nc.servers.find(name=vm_name), 'OS-EXT-STS:task_state') != 'image_backup':
+                    logging.debug('Waiting for backup job to start on VM %s' % (vm.id,))
+                    sleep(3)
+                break
+            except:
+                logging.error("exception (will now sleep for 5 seconds): " + traceback.format_exc())
+                time.sleep(5)
+                continue
 
         # Wait for the image to run to 100%.
         while True:
-            images = images_in_progress(nc, vm.id, backup_name)
+            try:
+                images = images_in_progress(nc, vm.id, backup_name)
 
-            if images == []: break
+                if images == []: break
 
-            for i in images:
-                logging.debug('Waiting for image %s which is %d%% complete.' % (i.id, i.progress,))
-                self.update_state(state="PROGRESS", meta={'params': params, 'info': 'waiting for image %s which is %d%% complete' % (i.id, i.progress,),})
+                for i in images:
+                    logging.debug('Waiting for image %s which is %d%% complete.' % (i.id, i.progress,))
+                    self.update_state(state="PROGRESS", meta={'params': params, 'info': 'waiting for image %s which is %d%% complete' % (i.id, i.progress,),})
 
-            sleep(3)
+                sleep(3)
+            except:
+                logging.error("exception (will now sleep for 5 seconds): " + traceback.format_exc())
+                time.sleep(5)
+                continue
 
         # Everything should be finished.
-        assert getattr(nc.servers.find(name=vm_name), 'OS-EXT-STS:task_state') != 'image_backup'
-        assert images_in_progress(nc, vm, backup_name) == []
+        # assert getattr(nc.servers.find(name=vm_name), 'OS-EXT-STS:task_state') != 'image_backup'
+        # assert images_in_progress(nc, vm, backup_name) == []
 
         logging.debug('Backup for VM %s "%s" completed.' % (vm.id, vm.name,))
 
