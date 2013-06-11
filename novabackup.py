@@ -57,8 +57,6 @@ class BackupVM(Task):
         nc = nova_client()
         logging.debug('backing up VM "%s"' % (vm_name,))
 
-        time.sleep(random.randrange(10, 100))
-
         # Make sure that the VM isn't busy doing another backup.
         while True:
             try:
@@ -128,3 +126,11 @@ class BackupVM(Task):
         self.update_state(state="COMPLETED", meta={'params': params, 'info': 'completed',})
 
         return params
+
+# For debugging only; creates a tasks that runs forever while emitting
+# log messages.
+class SleepTest(Task):
+    def run(self, x):
+        while True:
+            time.sleep(1)
+            logging.debug('sleeping... ' + str(x))

@@ -2,14 +2,11 @@
 
 from celery import Celery
 from celery.result import AsyncResult
+from celery.task.control import inspect
 
 celery = Celery('novabackup', backend='redis://localhost', broker='redis://localhost')
 
-from celery.task.control import inspect
-
-i = inspect()
-
-for d in [i.scheduled(), i.active()]:
+for d in [inspect().scheduled(), inspect().active()]:
     for host, workers in d.iteritems():
         for w in workers:
             res = AsyncResult(w['id'])
@@ -18,5 +15,3 @@ for d in [i.scheduled(), i.active()]:
             print res.result
             print res.status
             print
-
-
