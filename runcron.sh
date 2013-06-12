@@ -9,6 +9,6 @@ source openrc.sh
 source ec2rc.sh
 cd - &> /dev/null # Why does this print /home/carlo?
 
-/home/carlo/.cabal/bin/nova-backup-util --run-backups
+# /home/carlo/.cabal/bin/nova-backup-util --run-backups
 
-
+/usr/bin/python /home/carlo/nova-backup/run_backups.py
