@@ -53,11 +53,11 @@ This script prints a list of job IDs and VM names, e.g.
 
 Check the active jobs:
 
-    ./print_active_tasks.py | grep novabackup
+    ./print_active_jobs.py | grep novabackup
 
 For example:
 
-    $ ./print_active_tasks.py | grep novabackup
+    $ ./print_active_jobs.py | grep novabackup
     c60341f5-f97a-4c12-9a2e-f7b993e2b6da novabackup.BackupVM
     9252d10f-1a96-4860-ae8f-ddf3b12a72a8 novabackup.BackupVM
     ccdda9d4-061f-418e-8558-cb9d39181d58 novabackup.BackupVM
