@@ -6,10 +6,12 @@ from novabackup import nova_client, utc_to_local
 if __name__ == '__main__':
     nc = nova_client()
 
+    nc_images_list = nc.images.list()
+
     for vm in nc.servers.findall():
         backup_name = 'CVL_BACKUP_' + vm.name
         # print backup_name
-        images = sorted([(utc_to_local(i.updated), i.id) for i in nc.images.list() if i.name == backup_name and hasattr(i, 'server') and i.server['id'] == vm.id])
+        images = sorted([(utc_to_local(i.updated), i.id) for i in nc_images_list if i.name == backup_name and hasattr(i, 'server') and i.server['id'] == vm.id])
 
         if images == []:
             print 'NONE', vm.name
